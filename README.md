@@ -1,9 +1,9 @@
-# Amanda
-![tests](https://github.com/stackswithans/amanda/workflows/tests/badge.svg)
+# Luso
 
-Amanda is a statically typed programming language with portuguese constructs. 
-It is implemented using a Python compiler and a Rust VM.
-It's specifically designed to be used by portuguese speakers who are just getting started with programming.
+Luso is a statically typed programming language with portuguese constructs. It is built 
+with the goa of being presented as my bachelor thesis.
+
+It's a fork of [amanda-lang](https://github.com/amanda-lang/amanda).
 
 ## Build Instructions
 
@@ -22,7 +22,7 @@ python setup.py
 Test the installation by running the following command on CMD:
 
 ```
-dist\amanda examples\hello_world.ama 
+dist\amanda examples\hello_world.ls 
 ```
 
 **On Linux/Mac** 
@@ -36,10 +36,10 @@ python3 setup.py
 Test the installation by running:
 
 ```
-dist/amanda examples/hello_world.ama 
+dist/amanda examples/hello_world.ls 
 ```
 
-## Tour of Amanda
+## Tour of Luso
 
 #### Syntax
 
