@@ -1,212 +1,215 @@
-program
- : (usa_stmt)* ( declaration | NEWLINE )* EOF
+**Amanda**
+
+** keywords **
+
+var verdadeiro falso retorna caso
+se senao senaose escolha entao
+enquanto para faca de continua
+quebra func inc fim classe 
+vazio e ou nao
+
+** Lexical grammar **
+
+DIGITO
+    : "0" | ... | "9" 
+    ; 
+
+ALPHA
+    : "A" | ... | "Z" 
+    | "a" | ... | "z" 
+    | "_"
+    ;
+
+ALPHANUM
+    : DIGITO 
+    | ALPHA
+    ;
+
+INTEIRO
+    : DIGITO+
+    ;
+
+REAL
+    : DIGITO+ "." DIGITO+
+    ;
+
+IDENTFICADOR
+    :  ALPHA ALPHANUM*
+    ;
+
+STRING
+    : '"' @'"' '"'
+    | ''' @''' '''
+    ;
+
+STRING_F
+    : "f" STRING
+    ;
+
+LOGICO
+    : verdadeiro
+    | falso
+    ;
+
+NOVA_LINHA
+    : "\n"
+    ;
+
+PONTO_VIRG
+    : ";"
+    ;
+
+COMMENT:
+  : '#' @ '\n'
+  ; 
+
+programa
+ : ( declaracao | NOVA_LINHA )* 
  ;
 
-usa_stmt
- : USA STRING (COMO IDENTIFIER)? end_stmt
- ;
-
-declaration
-  | class_declaration
-  | function_declaration
-  | stmt
+declaracao
+  : decl_funcao
+  | decl_variavel
+  | instrucao
   ;
 
 
-class_declaration
-  : CLASSE IDENTIFIER ( < IDENTIFIER )? class_body FIM
+decl_variavel
+  : "var" IDENTFICADOR ":" tipo "=" igualdade fim_instr
   ;
 
-class_body
-  : ( var_declaration | function_declaration | NEWLINE )*
-
-
-type
-  :  IDENTIFIER 
-  | LBRACKET type RBRACKET
+fim_instr
+  : PONTO_VIRG 
+  | NOVA_LINHA
   ;
 
-function_header
-  : IDENTIFIER LPAR formal_parameter_section? RPAR COL (type | VAZIO)
+decl_funcao
+  : "func" IDENTFICADOR "(" parametro* ")" (":" (tipo | "vazio"))? bloco_funcao "fim"
   ;
 
-native_function_decl
-  : NATIVA header end_stmt
+parametro
+  : IDENTIFICADOR ":" tipo
   ;
 
-function_declaration
-  : FUNC (native_function_decl | function_header body FIM)
+bloco_funcao
+  : ( declaracao | instr_retorna |  NOVA_LINHA )*
   ;
 
 
-body
-  :( declaration | NEWLINE )*
+instr_retorna
+  : RETORNA igualdade? fim_instr
   ;
 
 
-formal_parameter_section
-  : IDENTIFIER COLON type (COMMA formal_parameter_section)*
+instrucao
+  : instr_escolha
+  | instr_se
+  | instr_enquanto
+  | instr_para
+  | expressao fim_instr
   ;
 
-
-stmt
-  : mostra_stmt
-  | escolha_stmt
-  | retorna_stmt
-  | se_stmt
-  | enquanto_stmt
-  | para_stmt
-  | decl_stmt
-  | quebra_stmt
-  | continua_stmt
+tipo
+  :  IDENTFICADOR
+  | "[" tipo "]"
   ;
 
-escolha_stmt
-  : ESCOLHA equality COLON 
-    (CASO equality COLON body)* 
-    (senao equality COLON body)?
-    FIM 
+instr_escolha
+  : "escolha" igualdade ":" 
+        ("caso" igualdade ":" bloco)* 
+        ("senao" igualdade COLON bloco)?
+    "fim" 
   ;
 
-retorna_stmt
-  : RETORNA equality? end_stmt
+instr_se
+  : "se" igualdade "entao" bloco ("senaose" igualdade "entao" bloco)* ("senao" bloco)? "fim"
   ;
 
-mostra_stmt
-  : MOSTRA equality end_stmt 
+bloco
+  : ( declaracao |  NOVA_LINHA )*
   ;
 
-se_stmt
-  : SE equality ENTAO body (SENAOSE equality ENTAO body)* (SENAO body)? FIM
+instr_enquanto
+  : "enquanto" igualdade "faca" bloco_ciclo "fim"
   ;
 
-enquanto_stmt
-  : ENQUANTO equality FACA body FIM
+instr_para
+  : "para" para_expr "faca" bloco_ciclo "fim"
   ;
 
-para_stmt
-  : PARA para_expression FACA body FIM
+para_expr
+  : IDENTIFICADOR "de" igualdade ".." igualdade ("inc" igualdade)?
   ;
 
-end_stmt
-  : (SEMI | NEWLINE | EOF)
+bloco_ciclo
+  : ( declaracao | instr_quebra | instr_continua |  NOVA_LINHA )*
   ;
 
-para_expression
-  : IDENTIFIER DE range_expression
+instr_quebra
+  : "quebra" fim_instr
   ;
 
-range_expression
-  : equality DDOT equality (inc equality)?
+instr_continua
+  : "continua" fim_instr
   ;
 
-quebra_stmt
-  : QUEBRA end_stmt
+expressao
+  : atrib_comp
   ;
 
-continua_stmt
-  : CONTINUA end_stmt
+atrib_comp
+  : atribuicao (("+=" | "-=" | "/=" | "*=") igualdade)?
   ;
 
-comp_op
-  : GREATER
-  | LESSEQ
-  | GREATEREQ
-  | LESSEQ
-
-
-eq_op
-  : NOTEQUAL
-  | DOUBLEEQUAL
+atribuicao
+  : igualdade ("=" igualdade)*
   ;
 
-decl_stmt
-  : expression (multi_decl|simple_decl)? end_stmt
+igualdade
+  : comparacao (("!=" | "==") comparacao)*
   ;
 
-multi_decl
-  :  (COMMA IDENTIFIER)+ COLON type 
+comparacao
+  : adicao ((">=" | ">" | "<" | "<=") adicao)*
   ;
 
-simple_decl
-  :  COLON type assignment?
+adicao
+  : multiplicacao (("+" | "-" | "ou") multiplicacao)*
   ;
 
-
-expression
-  : compound_assignment
+multiplicacao
+  : conversao (("*" | "/" | "//" | "%" | "e") conversao)*
   ;
 
-
-compound_assignment
-  : assignment ( compound_operator equality )?
+conversao
+  : unario_prefixo ("::" tipo)*
   ;
 
-assignment
-  : equality (EQUAL assignment)?
+unario_prefixo
+  : ("+" | "-" | "nao") unario_prefixo
+  | unario_posfixo
   ;
 
-equality
-  : comparison (eq_op comparison)*
-  ;
-
-comparison
-  : addition (comp_op addition)*
-  ;
-
-addition
-  : term ( add_operator term)*
-  ;
-
-term
-  : unary ( multi_operator unary)*
-  ;
-
-unary
-  : (PLUS | MINUS | NOT) unary
-  | call
-  ;
-
-call
-   : primary ((LPAR args? RPAR | index | DOT IDENTIFIER)* | DOUBLECOLON type)?
+unario_posfixo
+   : atomo ("(" args? ")" | indice | "." IDENTIFICADOR)* 
    ;
 
-
-primary
-  : INTEGER 
+atomo
+  : INTEIRO 
   | REAL
   | STRING
-  | FORMAT_STR
-  | VERDADEIRO
-  | FALSO
-  | LPAR equality RPAR
-  | LBRACKET type COLON args? RBRACKET
-  | IDENTIFIER 
-  | EU
-  | NULO
+  | STRING_F
+  | "verdadeiro"
+  | "falso"
+  | "(" igualdade ")"
+  | "[" tipo ":" argumentos? "]"
+  | IDENTIFICADOR 
   ;
 
 args
-  : equality (COMMA equality)*
+  : igualdade ("," igualdade)*
   ;
 
-index
-  : LBRACKET equality RBRACKET
+indice
+  : "[" igualdade "]"
   ;
-
-mult_operator
-  : STAR
-  | SLASH
-  | DOUBLESLASH
-  | MODULO
-  | AND
-  ;
-
-add_operator
-  : PLUS
-  | MINUS
-  | OR
-  ;
-
-LINE_COMMENT:
-  : '#'; 
